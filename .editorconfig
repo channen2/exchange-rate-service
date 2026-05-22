@@ -1,0 +1,23 @@
+root = true
+
+[*.cs]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+
+# -----------------------------
+# Roslyn analysis
+# -----------------------------
+
+dotnet_analyzer_diagnostic.severity = warning
+
+# Nullable safety (important)
+dotnet_diagnostic.CS8600.severity = warning
+dotnet_diagnostic.CS8601.severity = warning
+dotnet_diagnostic.CS8602.severity = warning
+
+# Unused code
+dotnet_diagnostic.IDE0005.severity = warning
+dotnet_diagnostic.CS8019.severity = warning
+dotnet_diagnostic.IDE0051.severity = warning

@@ -1,0 +1,19 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+dotnet tool restore
+
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.cs$' || true)
+
+if [ -z "$FILES" ]; then
+  exit 0
+fi
+
+echo "Formatting staged files..."
+
+for file in $FILES; do
+  dotnet csharpier format "$file"
+done
+
+# re-stage any formatting changes
+git add $FILES

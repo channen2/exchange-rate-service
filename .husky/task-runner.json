@@ -1,0 +1,14 @@
+{
+  "tasks": [
+    {
+      "name": "format",
+      "command": "dotnet",
+      "args": ["csharpier", "format", "."]
+    },
+    {
+      "name": "check-format",
+      "command": "dotnet",
+      "args": ["csharpier", "check", "."]
+    }
+  ]
+}
