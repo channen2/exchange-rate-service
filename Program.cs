@@ -1,3 +1,7 @@
+using ExchangeRateService.Data;
+using ExchangeRateService.Services;
+using Microsoft.EntityFrameworkCore;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +9,12 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 builder.Services.AddControllers();
+
+builder.Services.AddScoped<TransactionService>();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
 WebApplication app = builder.Build();
 
