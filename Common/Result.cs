@@ -29,10 +29,5 @@ namespace ExchangeRateService.Common
         {
             return new(error);
         }
-
-        public static implicit operator Result<T>(ConvertedTransactionResponse v)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

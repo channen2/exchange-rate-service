@@ -35,7 +35,7 @@ namespace ExchangeRateService.Services
                 )
             )
             {
-                return Result<decimal>.Failure("Unsupported currency");
+                return Result<decimal>.Failure(ErrorCodes.UnsupportedCurrency);
             }
 
             DateTime fromDate = transactionDate.AddMonths(-6);
@@ -59,7 +59,7 @@ namespace ExchangeRateService.Services
 
             if (apiResponse?.Data == null || apiResponse.Data.Count == 0)
             {
-                return Result<decimal>.Failure("No exchange rate data returned");
+                return Result<decimal>.Failure(ErrorCodes.ExchangeRateApiEmptyResponse);
             }
 
             var candidates = apiResponse
@@ -79,12 +79,12 @@ namespace ExchangeRateService.Services
 
             if (bestMatch is null)
             {
-                return Result<decimal>.Failure("Exchange rate not found within 6 months");
+                return Result<decimal>.Failure(ErrorCodes.ExchangeRateNotFound);
             }
 
             if (!decimal.TryParse(bestMatch.ExchangeRate, out var rate))
             {
-                return Result<decimal>.Failure("Invalid exchange rate format");
+                return Result<decimal>.Failure(ErrorCodes.ExchangeRateParseError);
             }
 
             return Result<decimal>.Success(rate);

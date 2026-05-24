@@ -11,11 +11,11 @@ namespace ExchangeRateService.Controllers
     [Route("api/transactions")]
     public class TransactionsController : ControllerBase
     {
-        private readonly TransactionService _transactionService;
+        private readonly ITransactionService _transactionService;
         private readonly ICurrencyConversionService _conversionService;
 
         public TransactionsController(
-            TransactionService transactionService,
+            ITransactionService transactionService,
             ICurrencyConversionService conversionService
         )
         {
@@ -92,18 +92,63 @@ namespace ExchangeRateService.Controllers
 
             if (!result.IsSuccess)
             {
-                return result.Error switch
-                {
-                    "Transaction not found" => NotFound(result.Error),
-                    "Unsupported currency" => BadRequest(result.Error),
-                    "No exchange rate available within 6 months" => UnprocessableEntity(
-                        result.Error
-                    ),
-                    _ => BadRequest(result.Error),
-                };
+                return MapError(result.Error!);
             }
 
             return Ok(result.Value);
+        }
+
+        private IActionResult MapError(string errorCode)
+        {
+            return errorCode switch
+            {
+                ErrorCodes.TransactionNotFound => NotFound(
+                    new ApiErrorResponse
+                    {
+                        ErrorCode = errorCode,
+                        Message = "Transaction not found",
+                    }
+                ),
+
+                ErrorCodes.UnsupportedCurrency => BadRequest(
+                    new ApiErrorResponse { ErrorCode = errorCode, Message = "Unsupported currency" }
+                ),
+
+                ErrorCodes.ExchangeRateNotFound => UnprocessableEntity(
+                    new ApiErrorResponse
+                    {
+                        ErrorCode = errorCode,
+                        Message = "No exchange rate found within 6 months of transaction date",
+                    }
+                ),
+
+                ErrorCodes.ExchangeRateParseError => StatusCode(
+                    502,
+                    new ApiErrorResponse
+                    {
+                        ErrorCode = errorCode,
+                        Message = "Invalid response received from exchange rate provider",
+                    }
+                ),
+
+                ErrorCodes.ExchangeRateApiEmptyResponse => StatusCode(
+                    502,
+                    new ApiErrorResponse
+                    {
+                        ErrorCode = errorCode,
+                        Message = "Exchange rate provider returned no data",
+                    }
+                ),
+
+                _ => StatusCode(
+                    500,
+                    new ApiErrorResponse
+                    {
+                        ErrorCode = ErrorCodes.ConversionFailed,
+                        Message = "An unexpected error occurred during conversion",
+                    }
+                ),
+            };
         }
     }
 }

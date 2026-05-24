@@ -7,11 +7,11 @@ namespace ExchangeRateService.Services
 {
     public class CurrencyConversionService : ICurrencyConversionService
     {
-        private readonly TransactionService _transactionService;
+        private readonly ITransactionService _transactionService;
         private readonly ITreasuryExchangeRateService _exchangeRateService;
 
         public CurrencyConversionService(
-            TransactionService transactionService,
+            ITransactionService transactionService,
             ITreasuryExchangeRateService exchangeRateService
         )
         {
@@ -30,7 +30,7 @@ namespace ExchangeRateService.Services
 
             if (transaction is null)
             {
-                return Result<ConvertedTransactionResponse>.Failure("Transaction not found");
+                return Result<ConvertedTransactionResponse>.Failure(ErrorCodes.TransactionNotFound);
             }
 
             Result<decimal> rateResult = await _exchangeRateService.GetExchangeRateAsync(
@@ -51,16 +51,18 @@ namespace ExchangeRateService.Services
                 MidpointRounding.AwayFromZero
             );
 
-            return new ConvertedTransactionResponse
-            {
-                Id = transaction.Id,
-                Description = transaction.Description,
-                TransactionDate = transaction.TransactionDate,
-                OriginalPurchaseAmountUsd = transaction.PurchaseAmountUsd,
-                CurrencyCode = targetCurrency,
-                ExchangeRate = rate,
-                ConvertedAmount = convertedAmount,
-            };
+            return Result<ConvertedTransactionResponse>.Success(
+                new ConvertedTransactionResponse
+                {
+                    Id = transaction.Id,
+                    Description = transaction.Description,
+                    TransactionDate = transaction.TransactionDate,
+                    OriginalPurchaseAmountUsd = transaction.PurchaseAmountUsd,
+                    CurrencyCode = targetCurrency,
+                    ExchangeRate = rate,
+                    ConvertedAmount = convertedAmount,
+                }
+            );
         }
     }
 }

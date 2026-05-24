@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<TransactionService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ITreasuryExchangeRateService, TreasuryExchangeRateService>();
 builder.Services.AddScoped<ICurrencyConversionService, CurrencyConversionService>();
 

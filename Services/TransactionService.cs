@@ -1,10 +1,11 @@
 using ExchangeRateService.Data;
 using ExchangeRateService.Models;
+using ExchangeRateService.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExchangeRateService.Services
 {
-    public class TransactionService
+    public class TransactionService : ITransactionService
     {
         private readonly AppDbContext _db;
 
