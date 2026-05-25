@@ -1,26 +1,29 @@
 using System.Text.Json;
 using ExchangeRateService.Common;
+using ExchangeRateService.Configuration;
 using ExchangeRateService.DTOs.Treasury;
 using ExchangeRateService.Services.Interfaces;
+using Microsoft.Extensions.Options;
 
 namespace ExchangeRateService.Services
 {
     public class TreasuryExchangeRateService : ITreasuryExchangeRateService
     {
-        private static readonly Dictionary<string, string> CurrencyMappings = new()
+        private readonly HttpClient _httpClient;
+        private readonly Dictionary<string, string> _currencyMappings;
+
+        private static readonly JsonSerializerOptions JsonOptions = new()
         {
-            { "EUR", "Euro Zone-Euro" },
-            { "GBP", "United Kingdom-Pound Sterling" },
-            { "JPY", "Japan-Yen" },
-            { "CAD", "Canada-Dollar" },
-            { "AUD", "Australia-Dollar" },
+            PropertyNameCaseInsensitive = true,
         };
 
-        private readonly HttpClient _httpClient;
-
-        public TreasuryExchangeRateService(HttpClient httpClient)
+        public TreasuryExchangeRateService(
+            HttpClient httpClient,
+            IOptions<TreasuryCurrencyOptions> options
+        )
         {
             _httpClient = httpClient;
+            _currencyMappings = options.Value.CurrencyMappings;
         }
 
         public async Task<Result<decimal>> GetExchangeRateAsync(
@@ -29,8 +32,8 @@ namespace ExchangeRateService.Services
         )
         {
             if (
-                !CurrencyMappings.TryGetValue(
-                    targetCurrency.ToUpper(System.Globalization.CultureInfo.CurrentCulture),
+                !_currencyMappings.TryGetValue(
+                    targetCurrency.ToUpperInvariant(),
                     out string? treasuryCurrency
                 )
             )
@@ -52,10 +55,7 @@ namespace ExchangeRateService.Services
             string json = await response.Content.ReadAsStringAsync();
 
             TreasuryExchangeRateApiResponse? apiResponse =
-                JsonSerializer.Deserialize<TreasuryExchangeRateApiResponse>(
-                    json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                );
+                JsonSerializer.Deserialize<TreasuryExchangeRateApiResponse>(json, JsonOptions);
 
             if (apiResponse?.Data == null || apiResponse.Data.Count == 0)
             {

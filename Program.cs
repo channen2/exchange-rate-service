@@ -1,3 +1,4 @@
+using ExchangeRateService.Configuration;
 using ExchangeRateService.Data;
 using ExchangeRateService.Services;
 using ExchangeRateService.Services.Interfaces;
@@ -13,6 +14,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ITreasuryExchangeRateService, TreasuryExchangeRateService>();
 builder.Services.AddScoped<ICurrencyConversionService, CurrencyConversionService>();
+
+builder.Services.Configure<TreasuryCurrencyOptions>(
+    builder.Configuration.GetSection("TreasuryCurrencyOptions")
+);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
