@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ExchangeRateService.Common;
+using ExchangeRateService.Common.Errors;
 using ExchangeRateService.Configuration;
 using ExchangeRateService.DTOs.Treasury;
 using ExchangeRateService.Services.Interfaces;
@@ -38,7 +39,10 @@ namespace ExchangeRateService.Services
                 )
             )
             {
-                return Result<decimal>.Failure(ErrorCodes.UnsupportedCurrency);
+                return Result<decimal>.Failure(
+                    Errors.UnsupportedCurrency,
+                    new Dictionary<string, object> { ["currency"] = targetCurrency }
+                );
             }
 
             DateTime fromDate = transactionDate.AddMonths(-6);
@@ -59,7 +63,15 @@ namespace ExchangeRateService.Services
 
             if (apiResponse?.Data == null || apiResponse.Data.Count == 0)
             {
-                return Result<decimal>.Failure(ErrorCodes.ExchangeRateApiEmptyResponse);
+                return Result<decimal>.Failure(
+                    Errors.ExchangeRateNotFound,
+                    new Dictionary<string, object>
+                    {
+                        ["currency"] = targetCurrency,
+                        ["transactionDate"] = transactionDate.ToString("yyyy-MM-dd"),
+                        ["searchWindow"] = $"{fromDate:yyyy-MM-dd} to {transactionDate:yyyy-MM-dd}",
+                    }
+                );
             }
 
             var candidates = apiResponse
@@ -79,12 +91,27 @@ namespace ExchangeRateService.Services
 
             if (bestMatch is null)
             {
-                return Result<decimal>.Failure(ErrorCodes.ExchangeRateNotFound);
+                return Result<decimal>.Failure(
+                    Errors.ExchangeRateNotFound,
+                    new Dictionary<string, object>
+                    {
+                        ["currency"] = targetCurrency,
+                        ["transactionDate"] = transactionDate.ToString("yyyy-MM-dd"),
+                        ["searchWindow"] = $"{fromDate:yyyy-MM-dd} to {transactionDate:yyyy-MM-dd}",
+                    }
+                );
             }
 
             if (!decimal.TryParse(bestMatch.ExchangeRate, out var rate))
             {
-                return Result<decimal>.Failure(ErrorCodes.ExchangeRateParseError);
+                return Result<decimal>.Failure(
+                    Errors.ExchangeRateParseError,
+                    new Dictionary<string, object>
+                    {
+                        ["currency"] = targetCurrency,
+                        ["exchangeRateValue"] = bestMatch.ExchangeRate,
+                    }
+                );
             }
 
             return Result<decimal>.Success(rate);

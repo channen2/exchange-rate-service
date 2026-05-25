@@ -2,11 +2,34 @@ using ExchangeRateService.Configuration;
 using ExchangeRateService.Data;
 using ExchangeRateService.Services;
 using ExchangeRateService.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder
+    .Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            Dictionary<string, object> errors = context
+                .ModelState.Where(x => x.Value?.Errors.Count > 0)
+                .ToDictionary(
+                    k => k.Key,
+                    v => (object)v.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                );
+
+            ApiErrorResponse response = new()
+            {
+                ErrorCode = "VALIDATION_ERROR",
+                Message = "One or more validation errors occurred.",
+                Details = errors,
+            };
+
+            return new BadRequestObjectResult(response);
+        };
+    });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
