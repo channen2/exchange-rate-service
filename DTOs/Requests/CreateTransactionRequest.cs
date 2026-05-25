@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ExchangeRateService.DTOs
+namespace ExchangeRateService.DTOs.Requests
 {
     public class CreateTransactionRequest
     {

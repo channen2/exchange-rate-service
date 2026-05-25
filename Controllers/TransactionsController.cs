@@ -1,8 +1,8 @@
 using ExchangeRateService.Common;
 using ExchangeRateService.Common.Errors;
-using ExchangeRateService.DTOs;
+using ExchangeRateService.DTOs.Requests;
+using ExchangeRateService.DTOs.Responses;
 using ExchangeRateService.Models;
-using ExchangeRateService.Services;
 using ExchangeRateService.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

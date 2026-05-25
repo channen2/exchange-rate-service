@@ -1,4 +1,4 @@
-namespace ExchangeRateService.DTOs
+namespace ExchangeRateService.DTOs.Responses
 {
     public class ConvertedTransactionResponse
     {

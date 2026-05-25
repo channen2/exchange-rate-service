@@ -1,6 +1,6 @@
 using ExchangeRateService.Common;
 using ExchangeRateService.Common.Errors;
-using ExchangeRateService.DTOs;
+using ExchangeRateService.DTOs.Responses;
 using ExchangeRateService.Models;
 using ExchangeRateService.Services.Interfaces;
 
@@ -32,7 +32,7 @@ namespace ExchangeRateService.Services
             if (transaction is null)
             {
                 return Result<ConvertedTransactionResponse>.Failure(
-                    Errors.TransactionNotFound,
+                    ErrorRegistry.TransactionNotFound,
                     new Dictionary<string, object> { ["transactionId"] = transactionId.ToString() }
                 );
             }

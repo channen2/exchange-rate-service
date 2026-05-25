@@ -1,6 +1,6 @@
 namespace ExchangeRateService.Common.Errors
 {
-    public static class Errors
+    public static class ErrorRegistry
     {
         public static readonly ErrorDefinition TransactionNotFound = new(
             "TRANSACTION_NOT_FOUND",

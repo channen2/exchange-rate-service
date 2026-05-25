@@ -40,7 +40,7 @@ namespace ExchangeRateService.Services
             )
             {
                 return Result<decimal>.Failure(
-                    Errors.UnsupportedCurrency,
+                    ErrorRegistry.UnsupportedCurrency,
                     new Dictionary<string, object> { ["currency"] = targetCurrency }
                 );
             }
@@ -64,7 +64,7 @@ namespace ExchangeRateService.Services
             if (apiResponse?.Data == null || apiResponse.Data.Count == 0)
             {
                 return Result<decimal>.Failure(
-                    Errors.ExchangeRateNotFound,
+                    ErrorRegistry.ExchangeRateNotFound,
                     new Dictionary<string, object>
                     {
                         ["currency"] = targetCurrency,
@@ -92,7 +92,7 @@ namespace ExchangeRateService.Services
             if (bestMatch is null)
             {
                 return Result<decimal>.Failure(
-                    Errors.ExchangeRateNotFound,
+                    ErrorRegistry.ExchangeRateNotFound,
                     new Dictionary<string, object>
                     {
                         ["currency"] = targetCurrency,
@@ -105,7 +105,7 @@ namespace ExchangeRateService.Services
             if (!decimal.TryParse(bestMatch.ExchangeRate, out var rate))
             {
                 return Result<decimal>.Failure(
-                    Errors.ExchangeRateParseError,
+                    ErrorRegistry.ExchangeRateParseError,
                     new Dictionary<string, object>
                     {
                         ["currency"] = targetCurrency,

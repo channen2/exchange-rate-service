@@ -1,5 +1,6 @@
 using ExchangeRateService.Configuration;
 using ExchangeRateService.Data;
+using ExchangeRateService.DTOs.Responses;
 using ExchangeRateService.Services;
 using ExchangeRateService.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
