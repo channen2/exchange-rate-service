@@ -43,9 +43,9 @@ builder.Services.AddScoped<ICurrencyConversionService, CurrencyConversionService
 builder.Services.AddScoped<IExchangeRateProvider, ExchangeRateProvider>();
 builder.Services.AddScoped<IExchangeRateIngestionService, ExchangeRateIngestionService>();
 
+builder.Services.AddScoped<IExchangeRateRefreshOrchestrator, ExchangeRateRefreshOrchestrator>();
+builder.Services.AddHostedService<ExchangeRateRefreshHostedService>();
 builder.Services.AddSingleton<IExchangeRateIngestionBuffer, ExchangeRateIngestionBuffer>();
-builder.Services.AddHostedService<ExchangeRateIngestionWorker>();
-builder.Services.AddHostedService<ExchangeRateIngestionWorker>();
 builder.Services.AddHostedService<ExchangeRateIngestionWorker>();
 
 builder.Services.Configure<TreasuryCurrencyOptions>(
