@@ -1,7 +1,9 @@
+using ExchangeRateService.Common;
 using ExchangeRateService.Data;
 using ExchangeRateService.Models;
 using ExchangeRateService.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ExchangeRateService.Services
 {
@@ -9,14 +11,17 @@ namespace ExchangeRateService.Services
     {
         private readonly AppDbContext _db;
         private readonly ITreasuryExchangeRateService _treasuryService;
+        private readonly IMemoryCache _cache;
 
         public ExchangeRateIngestionService(
             AppDbContext db,
-            ITreasuryExchangeRateService treasuryService
+            ITreasuryExchangeRateService treasuryService,
+            IMemoryCache cache
         )
         {
             _db = db;
             _treasuryService = treasuryService;
+            _cache = cache;
         }
 
         public async Task IngestRatesAsync(DateTime fromDate, DateTime toDate)
@@ -37,7 +42,7 @@ namespace ExchangeRateService.Services
                     null
                 );
 
-                if (!apiResult.IsSuccess || apiResult.Value?.Data == null)
+                if (!apiResult.IsSuccess || apiResult.Value?.Data is null)
                 {
                     run.Success = false;
                     run.ErrorMessage = apiResult.Error?.Message;
@@ -71,21 +76,23 @@ namespace ExchangeRateService.Services
 
                 foreach (var record in records)
                 {
-                    if (!DateTime.TryParse(record.RecordDate, out var recordDate))
+                    if (
+                        !DateTime.TryParse(record.RecordDate, out var recordDate)
+                        || !DateTime.TryParse(record.EffectiveDate, out var effectiveDate)
+                        || !decimal.TryParse(record.ExchangeRate, out var rate)
+                    )
+                    {
                         continue;
-
-                    if (!DateTime.TryParse(record.EffectiveDate, out var effectiveDate))
-                        continue;
-
-                    if (!decimal.TryParse(record.ExchangeRate, out var rate))
-                        continue;
+                    }
 
                     var currency = record.CountryCurrencyDescription.ToUpperInvariant();
 
                     var key = (currency, effectiveDate, recordDate);
 
                     if (existingSet.Contains(key))
+                    {
                         continue;
+                    }
 
                     newEntities.Add(
                         new ExchangeRate
@@ -109,6 +116,18 @@ namespace ExchangeRateService.Services
 
                 _db.IngestionRuns.Add(run);
                 await _db.SaveChangesAsync();
+
+                if (newEntities.Count > 0)
+                {
+                    foreach (var entity in newEntities)
+                    {
+                        var cacheKey = ExchangeRateCacheKey.FromRecordDate(
+                            entity.CurrencyCode,
+                            entity.RecordDate
+                        );
+                        _cache.Remove(cacheKey);
+                    }
+                }
             }
             catch (Exception ex)
             {

@@ -4,6 +4,6 @@ namespace ExchangeRateService.Services.Interfaces
 {
     public interface IExchangeRateProvider
     {
-        Task<Result<decimal>> GetRateAsync(string currencyCode, DateTime transactionDate);
+        Task<Result<decimal>> GetRateAsync(string treasuryCurrency, DateTime transactionDate);
     }
 }
