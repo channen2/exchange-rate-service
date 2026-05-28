@@ -27,6 +27,12 @@ namespace ExchangeRateService.Services
 
         private readonly ILogger<ExchangeRateIngestionService> _logger = logger;
 
+        private readonly record struct ExchangeRateKey(
+            string TreasuryCurrency,
+            DateTime EffectiveDate,
+            DateTime RecordDate
+        );
+
         public async Task IngestRatesAsync(DateTime fromDate, DateTime toDate)
         {
             var run = new IngestionRun
@@ -59,21 +65,18 @@ namespace ExchangeRateService.Services
 
                 var records = apiResult.Value.Data;
 
-                var existing = await _db
-                    .ExchangeRates.Where(x =>
-                        x.EffectiveDate >= fromDate && x.EffectiveDate <= toDate
-                    )
-                    .Select(x => new
-                    {
-                        x.TreasuryCurrency,
-                        x.EffectiveDate,
-                        x.RecordDate,
-                    })
-                    .ToListAsync();
-
-                var existingSet = existing
-                    .Select(x => (x.TreasuryCurrency, x.EffectiveDate, x.RecordDate))
-                    .ToHashSet();
+                var existingSet = (
+                    await _db
+                        .ExchangeRates.Where(x =>
+                            x.EffectiveDate >= fromDate && x.EffectiveDate <= toDate
+                        )
+                        .Select(x => new ExchangeRateKey(
+                            x.TreasuryCurrency,
+                            x.EffectiveDate,
+                            x.RecordDate
+                        ))
+                        .ToListAsync()
+                ).ToHashSet();
 
                 var now = DateTime.UtcNow;
 
@@ -103,7 +106,7 @@ namespace ExchangeRateService.Services
                         continue;
                     }
 
-                    var key = (treasuryCurrency, effectiveDate, recordDate);
+                    var key = new ExchangeRateKey(treasuryCurrency, effectiveDate, recordDate);
 
                     if (existingSet.Contains(key))
                     {

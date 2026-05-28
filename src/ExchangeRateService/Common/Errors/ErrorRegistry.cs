@@ -26,6 +26,12 @@ namespace ExchangeRateService.Common.Errors
             "Failed to retrieve data from external exchange rate provider"
         );
 
+        public static readonly ErrorDefinition TreasuryPaginationLimitExceeded = new(
+            "TREASURY_PAGINATION_LIMIT_EXCEEDED",
+            502,
+            "Treasury API pagination limit exceeded during ingestion"
+        );
+
         public static readonly ErrorDefinition ExchangeRateParseError = new(
             "EXCHANGE_RATE_PARSE_ERROR",
             502,
