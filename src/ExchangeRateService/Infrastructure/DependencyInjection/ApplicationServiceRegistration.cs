@@ -10,6 +10,7 @@ namespace ExchangeRateService.Infrastructure.DependencyInjection
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<ICurrencyService, CurrencyService>();
             services.AddScoped<ICurrencyConversionService, CurrencyConversionService>();
             services.AddScoped<IExchangeRateProvider, ExchangeRateProvider>();
             services.AddScoped<IExchangeRateIngestionService, ExchangeRateIngestionService>();

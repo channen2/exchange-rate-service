@@ -13,7 +13,9 @@ namespace ExchangeRateService.Tests.Integration
         [Fact]
         public async Task FullFlow_CreateAndConvertTransaction_ShouldReturnConvertedValue()
         {
-            // Create Transaction
+            // Arrange
+            var currencyCode = await GetValidCurrencyCodeAsync();
+
             var createRequest = new CreateTransactionRequest
             {
                 Description = "Laptop",
@@ -21,6 +23,7 @@ namespace ExchangeRateService.Tests.Integration
                 TransactionDate = new DateTime(2026, 1, 1),
             };
 
+            // Create Transaction
             var createResponse = await _client.PostAsJsonAsync("/api/transactions", createRequest);
 
             createResponse.EnsureSuccessStatusCode();
@@ -31,7 +34,7 @@ namespace ExchangeRateService.Tests.Integration
 
             // Convert Transaction
             var convertResponse = await _client.GetAsync(
-                $"/api/transactions/{created.Id}/convert?currency=CAD"
+                $"/api/transactions/{created.Id}/convert?currency={currencyCode}"
             );
 
             convertResponse.EnsureSuccessStatusCode();
@@ -39,9 +42,10 @@ namespace ExchangeRateService.Tests.Integration
             var converted =
                 await convertResponse.Content.ReadFromJsonAsync<ConvertedTransactionResponse>();
 
+            // Assert
             Assert.NotNull(converted);
 
-            Assert.Equal("CAD", converted.CurrencyCode);
+            Assert.Equal(currencyCode, converted.CurrencyCode);
             Assert.True(converted.ConvertedAmount > 0);
             Assert.Equal(100m, converted.OriginalPurchaseAmountUsd);
         }
@@ -50,11 +54,12 @@ namespace ExchangeRateService.Tests.Integration
         public async Task Convert_ShouldReturnNotFound_WhenTransactionDoesNotExist()
         {
             // Arrange
+            var currencyCode = await GetValidCurrencyCodeAsync();
             var transactionId = Guid.NewGuid();
 
             // Act
             var response = await _client.GetAsync(
-                $"/api/transactions/{transactionId}/convert?currency=CAD"
+                $"/api/transactions/{transactionId}/convert?currency={currencyCode}"
             );
 
             var content = await response.Content.ReadAsStringAsync();
@@ -68,7 +73,7 @@ namespace ExchangeRateService.Tests.Integration
         [Fact]
         public async Task Convert_ShouldReturnBadRequest_WhenCurrencyIsUnsupported()
         {
-            // Create Transaction
+            // Arrange
             var createResponse = await _client.PostAsJsonAsync(
                 "/api/transactions",
                 new
@@ -122,6 +127,22 @@ namespace ExchangeRateService.Tests.Integration
             Assert.NotNull(transaction);
             Assert.Equal(created.Id, transaction.Id);
             Assert.Equal(created.Description, transaction.Description);
+        }
+
+        private async Task<string> GetValidCurrencyCodeAsync()
+        {
+            var response = await _client.GetAsync("/api/currencies/");
+
+            response.EnsureSuccessStatusCode();
+
+            var currencies = await response.Content.ReadFromJsonAsync<
+                List<SupportedCurrencyResponse>
+            >();
+
+            Assert.NotNull(currencies);
+            Assert.NotEmpty(currencies);
+
+            return currencies[0].Code;
         }
     }
 }
