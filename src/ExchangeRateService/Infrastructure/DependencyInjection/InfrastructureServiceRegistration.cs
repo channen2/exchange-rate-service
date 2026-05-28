@@ -11,7 +11,8 @@ namespace ExchangeRateService.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddInfrastructure(
             this IServiceCollection services,
-            IConfiguration config
+            IConfiguration config,
+            IHostEnvironment env
         )
         {
             services
@@ -20,8 +21,16 @@ namespace ExchangeRateService.Infrastructure.DependencyInjection
                 .AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy());
 
             services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(config.GetConnectionString("DefaultConnection"))
-            );
+            {
+                if (env.IsEnvironment("Testing"))
+                {
+                    options.UseInMemoryDatabase("TestDb");
+                }
+                else
+                {
+                    options.UseSqlServer(config.GetConnectionString("DefaultConnection"));
+                }
+            });
 
             services.AddMemoryCache();
 

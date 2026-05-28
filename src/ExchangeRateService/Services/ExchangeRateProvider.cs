@@ -14,7 +14,7 @@ namespace ExchangeRateService.Services
     public class ExchangeRateProvider : IExchangeRateProvider
     {
         private readonly AppDbContext _db;
-        private readonly ITreasuryExchangeRateApiClient _treasuryService;
+        private readonly ITreasuryExchangeRateApiClient _treasuryApiClient;
         private readonly IExchangeRateIngestionBuffer _ingestionBuffer;
 
         private readonly IMemoryCache _cache;
@@ -29,7 +29,7 @@ namespace ExchangeRateService.Services
         )
         {
             _db = db;
-            _treasuryService = treasuryService;
+            _treasuryApiClient = treasuryService;
             _ingestionBuffer = ingestionBuffer;
             _cache = cache;
             _logger = logger;
@@ -59,23 +59,36 @@ namespace ExchangeRateService.Services
             LogMessages.CacheMiss(_logger, treasuryCurrency, transactionDate, cacheKey);
 
             // Fallback to DB layer
-            var db = await TryGetFromDbAsync(treasuryCurrency, transactionDate, cutoffDate);
+            var exchangeRateFromDb = await TryGetFromDbAsync(
+                treasuryCurrency,
+                transactionDate,
+                cutoffDate
+            );
 
-            if (db is not null)
+            if (exchangeRateFromDb is not null)
             {
                 LogMessages.DbHit(_logger, treasuryCurrency, transactionDate);
-                TryCache(db.Rate, db.RecordDate, expectedRecordDate, cacheKey);
-                return Result<decimal>.Success(db.Rate);
+                TryCache(
+                    exchangeRateFromDb.Rate,
+                    exchangeRateFromDb.RecordDate,
+                    expectedRecordDate,
+                    cacheKey
+                );
+                return Result<decimal>.Success(exchangeRateFromDb.Rate);
             }
 
             LogMessages.DbMiss(_logger, treasuryCurrency, transactionDate);
 
             // Finally try API layer
-            var api = await TryGetFromApiAsync(treasuryCurrency, transactionDate, cutoffDate);
+            var exchangeRateFromApi = await TryGetFromApiAsync(
+                treasuryCurrency,
+                transactionDate,
+                cutoffDate
+            );
 
             LogMessages.TreasuryApiFallback(_logger, treasuryCurrency, transactionDate, cutoffDate);
 
-            if (api is null)
+            if (exchangeRateFromApi is null)
             {
                 LogMessages.TreasuryApiFailure(
                     _logger,
@@ -94,17 +107,29 @@ namespace ExchangeRateService.Services
                 );
             }
 
-            if (!decimal.TryParse(api.ExchangeRate, out var rate))
+            if (!decimal.TryParse(exchangeRateFromApi.ExchangeRate, out var rate))
             {
-                LogMessages.TreasuryApiParseFailure(_logger, treasuryCurrency, api.ExchangeRate);
+                LogMessages.TreasuryApiParseFailure(
+                    _logger,
+                    treasuryCurrency,
+                    exchangeRateFromApi.ExchangeRate
+                );
 
                 return Result<decimal>.Failure(
                     ErrorRegistry.ExchangeRateParseError,
-                    new Dictionary<string, object> { ["exchangeRateValue"] = api.ExchangeRate }
+                    new Dictionary<string, object>
+                    {
+                        ["exchangeRateValue"] = exchangeRateFromApi.ExchangeRate,
+                    }
                 );
             }
 
-            TryCache(rate, DateTime.Parse(api.RecordDate), expectedRecordDate, cacheKey);
+            TryCache(
+                rate,
+                DateTime.Parse(exchangeRateFromApi.RecordDate),
+                expectedRecordDate,
+                cacheKey
+            );
 
             // Enqueue ingestion to backfill DB for future requests
             _ingestionBuffer.EnqueueAsync(cutoffDate, transactionDate);
@@ -113,14 +138,14 @@ namespace ExchangeRateService.Services
         }
 
         private async Task<ExchangeRate?> TryGetFromDbAsync(
-            string currency,
+            string treasuryCurrency,
             DateTime transactionDate,
             DateTime cutoffDate
         )
         {
             return await _db
                 .ExchangeRates.Where(x =>
-                    x.CurrencyCode == currency
+                    x.TreasuryCurrency == treasuryCurrency
                     && x.EffectiveDate <= transactionDate
                     && x.EffectiveDate >= cutoffDate
                 )
@@ -130,15 +155,15 @@ namespace ExchangeRateService.Services
         }
 
         private async Task<TreasuryExchangeRateRecord?> TryGetFromApiAsync(
-            string currency,
+            string treasuryCurrency,
             DateTime transactionDate,
             DateTime cutoffDate
         )
         {
-            var apiResult = await _treasuryService.GetExchangeRatesAsync(
+            var apiResult = await _treasuryApiClient.GetExchangeRatesAsync(
                 cutoffDate,
                 transactionDate,
-                currency
+                treasuryCurrency
             );
 
             if (!apiResult.IsSuccess || apiResult.Value?.Data is null)
@@ -146,7 +171,7 @@ namespace ExchangeRateService.Services
                 return null;
             }
 
-            return ResolveFromApi(apiResult.Value, currency, transactionDate, cutoffDate);
+            return ResolveFromApi(apiResult.Value, treasuryCurrency, transactionDate, cutoffDate);
         }
 
         private static TreasuryExchangeRateRecord? ResolveFromApi(

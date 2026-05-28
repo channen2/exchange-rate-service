@@ -5,12 +5,19 @@ namespace ExchangeRateService.Infrastructure.DependencyInjection
 {
     public static class BackgroundServiceRegistration
     {
-        public static IServiceCollection AddBackgroundWorkers(this IServiceCollection services)
+        public static IServiceCollection AddBackgroundWorkers(
+            this IServiceCollection services,
+            IHostEnvironment env
+        )
         {
             services.AddSingleton<IExchangeRateIngestionBuffer, ExchangeRateIngestionBuffer>();
 
             services.AddHostedService<ExchangeRateIngestionWorker>();
-            services.AddHostedService<ExchangeRateRefreshHostedService>();
+
+            if (!env.IsEnvironment("Testing"))
+            {
+                services.AddHostedService<ExchangeRateRefreshHostedService>();
+            }
 
             return services;
         }

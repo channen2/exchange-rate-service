@@ -2,10 +2,12 @@ using ExchangeRateService.Infrastructure.DependencyInjection;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+IWebHostEnvironment env = builder.Environment;
+
 builder.Services.AddApi();
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddBackgroundWorkers();
+builder.Services.AddInfrastructure(builder.Configuration, env);
+builder.Services.AddBackgroundWorkers(env);
 
 WebApplication app = builder.Build();
 
