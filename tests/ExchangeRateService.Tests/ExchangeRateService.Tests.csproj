@@ -5,10 +5,12 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <RootNamespace>ExchangeRateService.Tests</RootNamespace>
+    <NoWarn>CA1707;IDE0007;IDE0008;IDE0058</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.8" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="NSubstitute" Version="6.0.0-rc.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
