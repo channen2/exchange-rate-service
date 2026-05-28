@@ -12,7 +12,7 @@ namespace ExchangeRateService.Services
     {
         private readonly AppDbContext _db;
 
-        private readonly ITreasuryExchangeRateService _treasuryService;
+        private readonly ITreasuryExchangeRateApiClient _treasuryService;
 
         private readonly IMemoryCache _cache;
 
@@ -22,7 +22,7 @@ namespace ExchangeRateService.Services
 
         public ExchangeRateIngestionService(
             AppDbContext db,
-            ITreasuryExchangeRateService treasuryService,
+            ITreasuryExchangeRateApiClient treasuryService,
             IMemoryCache cache,
             ITreasuryCurrencyMapper treasuryCurrencyMapper,
             ILogger<ExchangeRateIngestionService> logger

@@ -6,7 +6,7 @@ using ExchangeRateService.Services.Interfaces;
 
 namespace ExchangeRateService.Services
 {
-    public class TreasuryExchangeRateService : ITreasuryExchangeRateService
+    public class TreasuryExchangeRateApiClient : ITreasuryExchangeRateApiClient
     {
         private readonly HttpClient _httpClient;
 
@@ -15,7 +15,7 @@ namespace ExchangeRateService.Services
             PropertyNameCaseInsensitive = true,
         };
 
-        public TreasuryExchangeRateService(HttpClient httpClient)
+        public TreasuryExchangeRateApiClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }

@@ -3,6 +3,7 @@ using ExchangeRateService.Background.Interfaces;
 using ExchangeRateService.Configuration;
 using ExchangeRateService.Data;
 using ExchangeRateService.DTOs.Responses;
+using ExchangeRateService.Infrastructure;
 using ExchangeRateService.Services;
 using ExchangeRateService.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +39,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ITransactionService, TransactionService>();
-builder.Services.AddScoped<ITreasuryExchangeRateService, TreasuryExchangeRateService>();
+builder
+    .Services.AddHttpClient<ITreasuryExchangeRateApiClient, TreasuryExchangeRateApiClient>()
+    .AddPolicyHandler(PollyPolicies.GetRetryPolicy())
+    .AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy());
 builder.Services.AddScoped<ICurrencyConversionService, CurrencyConversionService>();
 builder.Services.AddScoped<IExchangeRateProvider, ExchangeRateProvider>();
 builder.Services.AddScoped<IExchangeRateIngestionService, ExchangeRateIngestionService>();
