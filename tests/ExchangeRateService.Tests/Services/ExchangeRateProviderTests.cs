@@ -60,7 +60,10 @@ namespace ExchangeRateService.Tests.Services
             Assert.True(result.IsSuccess);
             Assert.Equal(1.5m, result.Value);
 
-            await _api.DidNotReceiveWithAnyArgs().GetExchangeRatesAsync(default, default, default);
+            await _buffer.DidNotReceive().EnqueueAsync(Arg.Any<DateTime>(), Arg.Any<DateTime>());
+
+            await _api.DidNotReceive()
+                .GetExchangeRatesAsync(Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<string>());
         }
 
         [Fact]

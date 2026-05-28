@@ -30,18 +30,15 @@ namespace ExchangeRateService.Tests.Controllers
             // Arrange
             _transactionService
                 .GetAllAsync()
-                .Returns(
-                    new List<PurchaseTransaction>
+                .Returns([
+                    new()
                     {
-                        new()
-                        {
-                            Id = Guid.NewGuid(),
-                            Description = "Test",
-                            PurchaseAmountUsd = 100,
-                            TransactionDate = new DateTime(2026, 1, 1),
-                        },
-                    }
-                );
+                        Id = Guid.NewGuid(),
+                        Description = "Test",
+                        PurchaseAmountUsd = 100,
+                        TransactionDate = new DateTime(2026, 1, 1),
+                    },
+                ]);
 
             // Act
             var result = await _controller.GetAll();
