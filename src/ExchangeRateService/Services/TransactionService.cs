@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExchangeRateService.Services
 {
-    public class TransactionService : ITransactionService
+    public class TransactionService(AppDbContext db) : ITransactionService
     {
-        private readonly AppDbContext _db;
-
-        public TransactionService(AppDbContext db)
-        {
-            _db = db;
-        }
+        private readonly AppDbContext _db = db;
 
         public async Task<PurchaseTransaction> CreateAsync(
             decimal amount,

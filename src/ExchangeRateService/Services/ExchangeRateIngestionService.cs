@@ -8,32 +8,23 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace ExchangeRateService.Services
 {
-    public class ExchangeRateIngestionService : IExchangeRateIngestionService
+    public class ExchangeRateIngestionService(
+        AppDbContext db,
+        ITreasuryExchangeRateApiClient treasuryService,
+        IMemoryCache cache,
+        ITreasuryCurrencyMapper treasuryCurrencyMapper,
+        ILogger<ExchangeRateIngestionService> logger
+    ) : IExchangeRateIngestionService
     {
-        private readonly AppDbContext _db;
+        private readonly AppDbContext _db = db;
 
-        private readonly ITreasuryExchangeRateApiClient _treasuryApiClient;
+        private readonly ITreasuryExchangeRateApiClient _treasuryApiClient = treasuryService;
 
-        private readonly IMemoryCache _cache;
+        private readonly IMemoryCache _cache = cache;
 
-        private readonly ITreasuryCurrencyMapper _treasuryCurrencyMapper;
+        private readonly ITreasuryCurrencyMapper _treasuryCurrencyMapper = treasuryCurrencyMapper;
 
-        private readonly ILogger<ExchangeRateIngestionService> _logger;
-
-        public ExchangeRateIngestionService(
-            AppDbContext db,
-            ITreasuryExchangeRateApiClient treasuryService,
-            IMemoryCache cache,
-            ITreasuryCurrencyMapper treasuryCurrencyMapper,
-            ILogger<ExchangeRateIngestionService> logger
-        )
-        {
-            _db = db;
-            _treasuryApiClient = treasuryService;
-            _cache = cache;
-            _treasuryCurrencyMapper = treasuryCurrencyMapper;
-            _logger = logger;
-        }
+        private readonly ILogger<ExchangeRateIngestionService> _logger = logger;
 
         public async Task IngestRatesAsync(DateTime fromDate, DateTime toDate)
         {

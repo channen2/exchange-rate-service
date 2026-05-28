@@ -6,19 +6,15 @@ using ExchangeRateService.Services.Interfaces;
 
 namespace ExchangeRateService.Services
 {
-    public class TreasuryExchangeRateApiClient : ITreasuryExchangeRateApiClient
+    public class TreasuryExchangeRateApiClient(HttpClient httpClient)
+        : ITreasuryExchangeRateApiClient
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _httpClient = httpClient;
 
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
             PropertyNameCaseInsensitive = true,
         };
-
-        public TreasuryExchangeRateApiClient(HttpClient httpClient)
-        {
-            _httpClient = httpClient;
-        }
 
         public async Task<Result<TreasuryExchangeRateApiResponse>> GetExchangeRatesAsync(
             DateTime fromDate,

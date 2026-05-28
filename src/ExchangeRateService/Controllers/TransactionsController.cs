@@ -10,19 +10,13 @@ namespace ExchangeRateService.Controllers
 {
     [ApiController]
     [Route("api/transactions")]
-    public class TransactionsController : ControllerBase
+    public class TransactionsController(
+        ITransactionService transactionService,
+        ICurrencyConversionService conversionService
+    ) : ControllerBase
     {
-        private readonly ITransactionService _transactionService;
-        private readonly ICurrencyConversionService _conversionService;
-
-        public TransactionsController(
-            ITransactionService transactionService,
-            ICurrencyConversionService conversionService
-        )
-        {
-            _transactionService = transactionService;
-            _conversionService = conversionService;
-        }
+        private readonly ITransactionService _transactionService = transactionService;
+        private readonly ICurrencyConversionService _conversionService = conversionService;
 
         [HttpGet]
         public async Task<IActionResult> GetAll()

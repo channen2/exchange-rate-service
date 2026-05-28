@@ -5,22 +5,15 @@ using ExchangeRateService.Services.Interfaces;
 
 namespace ExchangeRateService.Services
 {
-    public class CurrencyConversionService : ICurrencyConversionService
+    public class CurrencyConversionService(
+        ITransactionService transactionService,
+        IExchangeRateProvider exchangeRateProvider,
+        ITreasuryCurrencyMapper treasuryCurrencyMapper
+    ) : ICurrencyConversionService
     {
-        private readonly ITransactionService _transactionService;
-        private readonly IExchangeRateProvider _exchangeRateProvider;
-        private readonly ITreasuryCurrencyMapper _treasuryCurrencyMapper;
-
-        public CurrencyConversionService(
-            ITransactionService transactionService,
-            IExchangeRateProvider exchangeRateProvider,
-            ITreasuryCurrencyMapper treasuryCurrencyMapper
-        )
-        {
-            _transactionService = transactionService;
-            _exchangeRateProvider = exchangeRateProvider;
-            _treasuryCurrencyMapper = treasuryCurrencyMapper;
-        }
+        private readonly ITransactionService _transactionService = transactionService;
+        private readonly IExchangeRateProvider _exchangeRateProvider = exchangeRateProvider;
+        private readonly ITreasuryCurrencyMapper _treasuryCurrencyMapper = treasuryCurrencyMapper;
 
         public async Task<Result<ConvertedTransactionResponse>> ConvertAsync(
             Guid transactionId,

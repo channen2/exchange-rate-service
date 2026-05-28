@@ -5,14 +5,10 @@ using ExchangeRateService.DTOs.Responses;
 
 namespace ExchangeRateService.Tests.Integration
 {
-    public class TransactionsIntegrationTests : IClassFixture<CustomWebApplicationFactory>
+    public class TransactionsIntegrationTests(CustomWebApplicationFactory factory)
+        : IClassFixture<CustomWebApplicationFactory>
     {
-        private readonly HttpClient _client;
-
-        public TransactionsIntegrationTests(CustomWebApplicationFactory factory)
-        {
-            _client = factory.CreateClient();
-        }
+        private readonly HttpClient _client = factory.CreateClient();
 
         [Fact]
         public async Task FullFlow_CreateAndConvertTransaction_ShouldReturnConvertedValue()

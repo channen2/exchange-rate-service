@@ -11,29 +11,20 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace ExchangeRateService.Services
 {
-    public class ExchangeRateProvider : IExchangeRateProvider
+    public class ExchangeRateProvider(
+        AppDbContext db,
+        ITreasuryExchangeRateApiClient treasuryService,
+        IExchangeRateIngestionBuffer ingestionBuffer,
+        IMemoryCache cache,
+        ILogger<ExchangeRateProvider> logger
+    ) : IExchangeRateProvider
     {
-        private readonly AppDbContext _db;
-        private readonly ITreasuryExchangeRateApiClient _treasuryApiClient;
-        private readonly IExchangeRateIngestionBuffer _ingestionBuffer;
+        private readonly AppDbContext _db = db;
+        private readonly ITreasuryExchangeRateApiClient _treasuryApiClient = treasuryService;
+        private readonly IExchangeRateIngestionBuffer _ingestionBuffer = ingestionBuffer;
 
-        private readonly IMemoryCache _cache;
-        private readonly ILogger<ExchangeRateProvider> _logger;
-
-        public ExchangeRateProvider(
-            AppDbContext db,
-            ITreasuryExchangeRateApiClient treasuryService,
-            IExchangeRateIngestionBuffer ingestionBuffer,
-            IMemoryCache cache,
-            ILogger<ExchangeRateProvider> logger
-        )
-        {
-            _db = db;
-            _treasuryApiClient = treasuryService;
-            _ingestionBuffer = ingestionBuffer;
-            _cache = cache;
-            _logger = logger;
-        }
+        private readonly IMemoryCache _cache = cache;
+        private readonly ILogger<ExchangeRateProvider> _logger = logger;
 
         public async Task<Result<decimal>> GetRateAsync(
             string treasuryCurrency,

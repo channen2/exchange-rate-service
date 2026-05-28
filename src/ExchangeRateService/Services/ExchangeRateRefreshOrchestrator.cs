@@ -6,19 +6,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExchangeRateService.Services
 {
-    public class ExchangeRateRefreshOrchestrator : IExchangeRateRefreshOrchestrator
+    public class ExchangeRateRefreshOrchestrator(
+        AppDbContext db,
+        IExchangeRateIngestionBuffer buffer
+    ) : IExchangeRateRefreshOrchestrator
     {
-        private readonly AppDbContext _db;
+        private readonly AppDbContext _db = db;
 
-        private readonly IExchangeRateIngestionBuffer _buffer;
+        private readonly IExchangeRateIngestionBuffer _buffer = buffer;
 
         private const int BootstrapYears = 5;
-
-        public ExchangeRateRefreshOrchestrator(AppDbContext db, IExchangeRateIngestionBuffer buffer)
-        {
-            _db = db;
-            _buffer = buffer;
-        }
 
         public async Task EnsureBootstrapAsync()
         {

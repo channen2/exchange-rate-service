@@ -3,20 +3,14 @@ using ExchangeRateService.Services.Interfaces;
 
 namespace ExchangeRateService.Background
 {
-    public class ExchangeRateRefreshHostedService : BackgroundService
+    public class ExchangeRateRefreshHostedService(
+        IServiceScopeFactory scopeFactory,
+        ILogger<ExchangeRateRefreshHostedService> logger
+    ) : BackgroundService
     {
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
 
-        private readonly ILogger<ExchangeRateRefreshHostedService> _logger;
-
-        public ExchangeRateRefreshHostedService(
-            IServiceScopeFactory scopeFactory,
-            ILogger<ExchangeRateRefreshHostedService> logger
-        )
-        {
-            _scopeFactory = scopeFactory;
-            _logger = logger;
-        }
+        private readonly ILogger<ExchangeRateRefreshHostedService> _logger = logger;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

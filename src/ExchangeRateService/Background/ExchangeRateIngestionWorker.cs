@@ -4,22 +4,15 @@ using ExchangeRateService.Services.Interfaces;
 
 namespace ExchangeRateService.Background
 {
-    public class ExchangeRateIngestionWorker : BackgroundService
+    public class ExchangeRateIngestionWorker(
+        IExchangeRateIngestionBuffer buffer,
+        IServiceScopeFactory scopeFactory,
+        ILogger<ExchangeRateIngestionWorker> logger
+    ) : BackgroundService
     {
-        private readonly IExchangeRateIngestionBuffer _buffer;
-        private readonly IServiceScopeFactory _scopeFactory;
-        private readonly ILogger<ExchangeRateIngestionWorker> _logger;
-
-        public ExchangeRateIngestionWorker(
-            IExchangeRateIngestionBuffer buffer,
-            IServiceScopeFactory scopeFactory,
-            ILogger<ExchangeRateIngestionWorker> logger
-        )
-        {
-            _buffer = buffer;
-            _scopeFactory = scopeFactory;
-            _logger = logger;
-        }
+        private readonly IExchangeRateIngestionBuffer _buffer = buffer;
+        private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+        private readonly ILogger<ExchangeRateIngestionWorker> _logger = logger;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
