@@ -12,7 +12,7 @@ namespace ExchangeRateService.Services
     {
         private readonly AppDbContext _db;
 
-        private readonly ITreasuryExchangeRateApiClient _treasuryService;
+        private readonly ITreasuryExchangeRateApiClient _treasuryApiClient;
 
         private readonly IMemoryCache _cache;
 
@@ -29,7 +29,7 @@ namespace ExchangeRateService.Services
         )
         {
             _db = db;
-            _treasuryService = treasuryService;
+            _treasuryApiClient = treasuryService;
             _cache = cache;
             _treasuryCurrencyMapper = treasuryCurrencyMapper;
             _logger = logger;
@@ -49,7 +49,7 @@ namespace ExchangeRateService.Services
 
             try
             {
-                var apiResult = await _treasuryService.GetExchangeRatesAsync(
+                var apiResult = await _treasuryApiClient.GetExchangeRatesAsync(
                     fromDate,
                     toDate,
                     null

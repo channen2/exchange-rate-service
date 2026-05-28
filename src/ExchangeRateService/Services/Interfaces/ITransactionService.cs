@@ -4,7 +4,7 @@ namespace ExchangeRateService.Services.Interfaces
 {
     public interface ITransactionService
     {
-        Task<PurchaseTransaction> Create(
+        Task<PurchaseTransaction> CreateAsync(
             decimal amount,
             DateTime transactionDate,
             string description

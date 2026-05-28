@@ -33,7 +33,7 @@ namespace ExchangeRateService.Tests.Services
             var sut = CreateSut(db);
 
             // Act
-            var result = await sut.Create(100m, DateTime.UtcNow, "test");
+            var result = await sut.CreateAsync(100m, new DateTime(2026, 1, 1), "test");
 
             // Assert
             var transaction = await db.PurchaseTransactions.FindAsync(result.Id);
@@ -54,8 +54,8 @@ namespace ExchangeRateService.Tests.Services
                 Id = Guid.NewGuid(),
                 Description = "test",
                 PurchaseAmountUsd = 10,
-                TransactionDate = DateTime.UtcNow,
-                CreatedAt = DateTime.UtcNow,
+                TransactionDate = new DateTime(2026, 1, 1),
+                CreatedAt = new DateTime(2026, 1, 1),
             };
 
             db.PurchaseTransactions.Add(entity);
@@ -80,14 +80,14 @@ namespace ExchangeRateService.Tests.Services
             var older = new PurchaseTransaction
             {
                 Id = Guid.NewGuid(),
-                TransactionDate = DateTime.UtcNow.AddDays(-1),
+                TransactionDate = new DateTime(2026, 1, 1).AddDays(-1),
                 PurchaseAmountUsd = 10,
             };
 
             var newer = new PurchaseTransaction
             {
                 Id = Guid.NewGuid(),
-                TransactionDate = DateTime.UtcNow,
+                TransactionDate = new DateTime(2026, 1, 1),
                 PurchaseAmountUsd = 20,
             };
 

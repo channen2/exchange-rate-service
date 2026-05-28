@@ -64,9 +64,9 @@ namespace ExchangeRateService.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync(CreateTransactionRequest request)
+        public async Task<IActionResult> Create(CreateTransactionRequest request)
         {
-            PurchaseTransaction transaction = await _transactionService.Create(
+            PurchaseTransaction transaction = await _transactionService.CreateAsync(
                 request.PurchaseAmountUsd,
                 request.TransactionDate!.Value,
                 request.Description

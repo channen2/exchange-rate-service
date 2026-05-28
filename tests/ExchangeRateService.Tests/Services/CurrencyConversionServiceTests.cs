@@ -181,7 +181,7 @@ namespace ExchangeRateService.Tests.Services
                 Id = id,
                 Description = description,
                 PurchaseAmountUsd = amount,
-                TransactionDate = transactionDate ?? DateTime.UtcNow,
+                TransactionDate = transactionDate ?? new DateTime(2026, 1, 1),
             };
         }
     }

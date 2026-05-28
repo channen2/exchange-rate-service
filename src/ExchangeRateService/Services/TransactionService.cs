@@ -14,7 +14,7 @@ namespace ExchangeRateService.Services
             _db = db;
         }
 
-        public async Task<PurchaseTransaction> Create(
+        public async Task<PurchaseTransaction> CreateAsync(
             decimal amount,
             DateTime transactionDate,
             string description
