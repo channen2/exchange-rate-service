@@ -2,15 +2,15 @@ namespace ExchangeRateService.Common
 {
     public static class ExchangeRateCacheKey
     {
-        public static string FromRecordDate(string currency, DateTime recordDate)
+        public static string FromRecordDate(string treasuryCurrency, DateTime recordDate)
         {
-            return $"{currency.ToUpperInvariant()}|{recordDate:yyyy-MM-dd}";
+            return $"{treasuryCurrency}|{recordDate:yyyy-MM-dd}";
         }
 
-        public static string FromTransactionDate(string currency, DateTime transactionDate)
+        public static string FromTransactionDate(string treasuryCurrency, DateTime transactionDate)
         {
             var recordDate = TreasuryDateHelper.GetTreasuryRecordDate(transactionDate);
-            return FromRecordDate(currency, recordDate);
+            return FromRecordDate(treasuryCurrency, recordDate);
         }
     }
 }

@@ -52,6 +52,8 @@ builder.Services.Configure<TreasuryCurrencyOptions>(
     builder.Configuration.GetSection("TreasuryCurrencyOptions")
 );
 
+builder.Services.AddSingleton<ITreasuryCurrencyMapper, TreasuryCurrencyMapper>();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );

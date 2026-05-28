@@ -1,9 +1,7 @@
 using ExchangeRateService.Common;
 using ExchangeRateService.Common.Errors;
-using ExchangeRateService.Configuration;
 using ExchangeRateService.DTOs.Responses;
 using ExchangeRateService.Services.Interfaces;
-using Microsoft.Extensions.Options;
 
 namespace ExchangeRateService.Services
 {
@@ -11,17 +9,17 @@ namespace ExchangeRateService.Services
     {
         private readonly ITransactionService _transactionService;
         private readonly IExchangeRateProvider _exchangeRateProvider;
-        private readonly Dictionary<string, string> _currencyMappings;
+        private readonly ITreasuryCurrencyMapper _treasuryCurrencyMapper;
 
         public CurrencyConversionService(
             ITransactionService transactionService,
             IExchangeRateProvider exchangeRateProvider,
-            IOptions<TreasuryCurrencyOptions> currencyMappings
+            ITreasuryCurrencyMapper treasuryCurrencyMapper
         )
         {
             _transactionService = transactionService;
             _exchangeRateProvider = exchangeRateProvider;
-            _currencyMappings = currencyMappings.Value.CurrencyMappings;
+            _treasuryCurrencyMapper = treasuryCurrencyMapper;
         }
 
         public async Task<Result<ConvertedTransactionResponse>> ConvertAsync(
@@ -39,12 +37,7 @@ namespace ExchangeRateService.Services
                 );
             }
 
-            if (
-                !_currencyMappings.TryGetValue(
-                    targetCurrency.ToUpperInvariant(),
-                    out var treasuryCurrency
-                )
-            )
+            if (!_treasuryCurrencyMapper.TryToTreasury(targetCurrency, out var treasuryCurrency))
             {
                 return Result<ConvertedTransactionResponse>.Failure(
                     ErrorRegistry.UnsupportedCurrency,
