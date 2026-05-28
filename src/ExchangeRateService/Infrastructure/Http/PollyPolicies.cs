@@ -1,7 +1,7 @@
 using Polly;
 using Polly.Extensions.Http;
 
-namespace ExchangeRateService.Infrastructure
+namespace ExchangeRateService.Infrastructure.Http
 {
     public static class PollyPolicies
     {
