@@ -68,7 +68,7 @@ namespace ExchangeRateService.Services
                 var existingSet = (
                     await _db
                         .ExchangeRates.Where(x =>
-                            x.EffectiveDate >= fromDate && x.EffectiveDate <= toDate
+                            x.RecordDate >= fromDate && x.RecordDate <= toDate
                         )
                         .Select(x => new ExchangeRateKey(
                             x.TreasuryCurrency,

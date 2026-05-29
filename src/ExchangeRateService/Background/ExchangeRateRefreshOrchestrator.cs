@@ -33,10 +33,8 @@ namespace ExchangeRateService.Background
         {
             var now = DateTime.UtcNow.Date;
 
-            var currentQuarter = TreasuryDateHelper.GetQuarterWindow(now);
             var previousQuarter = TreasuryDateHelper.GetQuarterWindow(now.AddMonths(-3));
 
-            await _buffer.EnqueueAsync(currentQuarter.from, currentQuarter.to);
             await _buffer.EnqueueAsync(previousQuarter.from, previousQuarter.to);
         }
 

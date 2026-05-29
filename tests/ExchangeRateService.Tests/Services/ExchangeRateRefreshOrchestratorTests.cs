@@ -64,13 +64,13 @@ namespace ExchangeRateService.Tests.Services
         }
 
         [Fact]
-        public async Task RefreshRecentAsync_ShouldEnqueueCurrentAndPreviousQuarter()
+        public async Task RefreshRecentAsync_ShouldEnqueuePreviousQuarter()
         {
             // Act
             await _sut.RefreshRecentAsync();
 
             // Assert
-            await _buffer.Received(2).EnqueueAsync(Arg.Any<DateTime>(), Arg.Any<DateTime>());
+            await _buffer.Received(1).EnqueueAsync(Arg.Any<DateTime>(), Arg.Any<DateTime>());
         }
 
         public void Dispose()
