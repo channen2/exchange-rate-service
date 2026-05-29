@@ -14,8 +14,9 @@ builder.Services.AddBackgroundWorkers(env);
 WebApplication app = builder.Build();
 
 // Apply migrations on startup
-using (IServiceScope scope = app.Services.CreateScope())
+if (!app.Environment.IsEnvironment("Testing"))
 {
+    using IServiceScope scope = app.Services.CreateScope();
     AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
     db.Database.Migrate();
