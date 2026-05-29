@@ -7,10 +7,12 @@ using ExchangeRateService.Models;
 using ExchangeRateService.Services.Interfaces;
 using ExchangeRateService.Swagger.Examples;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace ExchangeRateService.Controllers
 {
+    [EnableRateLimiting("standard")]
     [ApiController]
     [Route("api/v1/transactions")]
     [Tags("Transactions")]

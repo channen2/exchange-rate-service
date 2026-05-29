@@ -1,5 +1,7 @@
+using System.Threading.RateLimiting;
 using ExchangeRateService.DTOs.Responses;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace ExchangeRateService.Infrastructure.DependencyInjection
@@ -54,6 +56,23 @@ namespace ExchangeRateService.Infrastructure.DependencyInjection
             });
 
             services.AddSwaggerExamplesFromAssemblyOf<Program>();
+
+            services.AddRateLimiter(options =>
+            {
+                options.AddSlidingWindowLimiter(
+                    "standard",
+                    opt =>
+                    {
+                        opt.PermitLimit = 30;
+                        opt.Window = TimeSpan.FromSeconds(10);
+                        opt.SegmentsPerWindow = 3;
+                        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                        opt.QueueLimit = 10;
+                    }
+                );
+
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            });
 
             return services;
         }

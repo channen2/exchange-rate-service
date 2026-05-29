@@ -1,9 +1,11 @@
 using ExchangeRateService.DTOs.Responses;
 using ExchangeRateService.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ExchangeRateService.Controllers
 {
+    [EnableRateLimiting("standard")]
     [ApiController]
     [Route("api/v1/currencies")]
     [Tags("Currencies")]
