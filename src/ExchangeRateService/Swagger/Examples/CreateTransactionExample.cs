@@ -9,7 +9,7 @@ namespace ExchangeRateService.Swagger.Examples
         {
             return new CreateTransactionRequest
             {
-                PurchaseAmountUsd = 850.50m,
+                PurchaseAmountUsd = 850.52m,
                 TransactionDate = DateTime.UtcNow,
                 Description = "Laptop purchase",
             };

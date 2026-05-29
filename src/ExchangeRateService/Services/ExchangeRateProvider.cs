@@ -27,7 +27,6 @@ namespace ExchangeRateService.Services
 
         private readonly IMemoryCache _cache = cache;
 
-        private readonly ITreasuryCurrencyMapper _treasuryCurrencyMapper = treasuryCurrencyMapper;
         private readonly ILogger<ExchangeRateProvider> _logger = logger;
 
         public async Task<Result<decimal>> GetRateAsync(
@@ -149,7 +148,6 @@ namespace ExchangeRateService.Services
                     && x.EffectiveDate >= cutoffDate
                 )
                 .OrderByDescending(x => x.EffectiveDate)
-                .ThenByDescending(x => x.RecordDate)
                 .FirstOrDefaultAsync();
         }
 
@@ -191,7 +189,6 @@ namespace ExchangeRateService.Services
                 .Where(x => x.EffectiveDate <= transactionDate)
                 .Where(x => x.EffectiveDate >= cutoffDate)
                 .OrderByDescending(x => x.EffectiveDate)
-                .ThenByDescending(x => x.RecordDate)
                 .Select(x => x.Record)
                 .FirstOrDefault();
         }
