@@ -59,15 +59,24 @@ namespace ExchangeRateService.Infrastructure.DependencyInjection
 
             services.AddRateLimiter(options =>
             {
-                options.AddSlidingWindowLimiter(
+                options.AddPolicy(
                     "standard",
-                    opt =>
+                    httpContext =>
                     {
-                        opt.PermitLimit = 30;
-                        opt.Window = TimeSpan.FromSeconds(10);
-                        opt.SegmentsPerWindow = 3;
-                        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-                        opt.QueueLimit = 10;
+                        var partitionKey =
+                            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+                        return RateLimitPartition.GetSlidingWindowLimiter(
+                            partitionKey: partitionKey,
+                            factory: _ => new SlidingWindowRateLimiterOptions
+                            {
+                                PermitLimit = 30,
+                                Window = TimeSpan.FromSeconds(10),
+                                SegmentsPerWindow = 3,
+                                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                                QueueLimit = 10,
+                            }
+                        );
                     }
                 );
 
