@@ -113,6 +113,8 @@ namespace ExchangeRateService.Services
                         continue;
                     }
 
+                    existingSet.Add(key);
+
                     newEntities.Add(
                         new ExchangeRate
                         {
@@ -133,6 +135,7 @@ namespace ExchangeRateService.Services
                 }
 
                 run.Success = true;
+                run.FinishedAtUtc = DateTime.UtcNow;
 
                 _db.IngestionRuns.Add(run);
                 await _db.SaveChangesAsync();
@@ -154,8 +157,12 @@ namespace ExchangeRateService.Services
             catch (Exception ex)
             {
                 LogMessages.IngestionFailed(_logger, fromDate, toDate, ex);
+
+                _db.ChangeTracker.Clear();
+
                 run.Success = false;
                 run.ErrorMessage = ex.Message;
+                run.FinishedAtUtc = DateTime.UtcNow;
 
                 _db.IngestionRuns.Add(run);
                 await _db.SaveChangesAsync();

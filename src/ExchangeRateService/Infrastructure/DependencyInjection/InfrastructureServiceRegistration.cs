@@ -29,7 +29,17 @@ namespace ExchangeRateService.Infrastructure.DependencyInjection
                 }
                 else
                 {
-                    options.UseSqlServer(config.GetConnectionString("DefaultConnection"));
+                    options.UseSqlServer(
+                        config.GetConnectionString("DefaultConnection"),
+                        sql =>
+                        {
+                            sql.EnableRetryOnFailure(
+                                maxRetryCount: 5,
+                                maxRetryDelay: TimeSpan.FromSeconds(10),
+                                errorNumbersToAdd: null
+                            );
+                        }
+                    );
                 }
             });
 

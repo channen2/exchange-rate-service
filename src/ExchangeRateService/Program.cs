@@ -1,4 +1,6 @@
+using ExchangeRateService.Data;
 using ExchangeRateService.Infrastructure.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,14 @@ builder.Services.AddInfrastructure(builder.Configuration, env);
 builder.Services.AddBackgroundWorkers(env);
 
 WebApplication app = builder.Build();
+
+// Apply migrations on startup
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
